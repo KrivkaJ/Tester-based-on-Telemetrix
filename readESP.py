@@ -10,13 +10,56 @@ boardSTM = telemetrix.Telemetrix(arduino_instance_id=1)
 def makePin(portName, pinNumber):
     return (ord(portName) - ord("A")) * 16 + pinNumber 
 
+list_stm_esp_value = [] # stm pin, coresponding esp pin, read value
+global_value = 0
+
+#GND
+list_stm_esp_value.append([makePin('F', 13), 23, 0])
+list_stm_esp_value.append([makePin('F', 14), 22, 0])
+list_stm_esp_value.append([makePin('F', 15), 1, 0])
+list_stm_esp_value.append([makePin('E', 0), 3, 0])
+list_stm_esp_value.append([makePin('E', 1), 21, 0])
+#GND
+list_stm_esp_value.append([makePin('E', 2), 19, 0])
+list_stm_esp_value.append([makePin('E', 3), 18, 0])
+list_stm_esp_value.append([makePin('E', 4), 5, 0])
+list_stm_esp_value.append([makePin('E', 5), 17, 0])
+list_stm_esp_value.append([makePin('E', 6), 16, 0])
+list_stm_esp_value.append([makePin('E', 7), 4, 0])
+list_stm_esp_value.append([makePin('E', 8), 0, 0])
+list_stm_esp_value.append([makePin('E', 9), 2, 0])
+list_stm_esp_value.append([makePin('E', 10), 15, 0])
+#list_stm_esp_value.append([makePin('E', 11), 8, 0])
+#list_stm_esp_value.append([makePin('E', 12), 7, 0])
+#list_stm_esp_value.append([makePin('E', 13), 6, 0])
+
+#3v3
+#EN
+#list_stm_esp_value.append([makePin('C', 10), 36, 0]) prej tyto 4 input only
+#list_stm_esp_value.append([makePin('C', 11), 39, 0])
+#list_stm_esp_value.append([makePin('C', 12), 34, 0])
+#list_stm_esp_value.append([makePin('C', 13), 35, 0])
+list_stm_esp_value.append([makePin('C', 14), 32, 0])
+list_stm_esp_value.append([makePin('C', 15), 33, 0])
+list_stm_esp_value.append([makePin('D', 0), 25, 0])
+list_stm_esp_value.append([makePin('D', 1), 26, 0])
+list_stm_esp_value.append([makePin('D', 2), 27, 0])
+list_stm_esp_value.append([makePin('D', 3), 14, 0])
+list_stm_esp_value.append([makePin('D', 4), 12, 0])
+#GND
+list_stm_esp_value.append([makePin('D', 5), 13, 0])
+#list_stm_esp_value.append([makePin('D', 6), 9, 0])
+#list_stm_esp_value.append([makePin('D', 7), 10, 0])
+#list_stm_esp_value.append([makePin('D', 8), 11, 0])
+
+
+
+
 # Callback data indices
 CB_PIN_MODE = 0
 CB_PIN = 1
 CB_VALUE = 2
 CB_TIME = 3
-
-pin_value = int(0)
 
 def the_callback(data):
     """
@@ -26,8 +69,9 @@ def the_callback(data):
 
     :param data: [pin, current reported value, pin_mode, timestamp]
     """
-    global pin_value
-    pin_value = data[CB_VALUE]
+    global global_value
+    global_value = data[CB_VALUE]
+    
     
     date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data[CB_TIME]))
     print(f'Pin Mode: {data[CB_PIN_MODE]} Pin: {data[CB_PIN]} Value: {data[CB_VALUE]} Time Stamp: {date}')
@@ -44,6 +88,7 @@ def digital_in(my_board, pin):
      """
 
     # set the pin mode
+    my_board.enable_digital_reporting(pin)
     my_board.set_pin_mode_digital_input(pin, the_callback)
     #time.sleep(1)
     #my_board.disable_all_reporting()
@@ -51,7 +96,6 @@ def digital_in(my_board, pin):
     # my_board.enable_digital_reporting(12)
 
     #time.sleep(3)
-    my_board.enable_digital_reporting(pin)
     #time.sleep(1)
 
     #print('Enter Control-C to quit.')
@@ -62,7 +106,22 @@ pinSTM = makePin("F",13)
 pinESP = 23
 boardESP.set_pin_mode_digital_output(pinESP)
 #boardSTM.set_pin_mode_digital_input(pinSTM)
-while True:
+
+boardSTM.disable_all_reporting()
+
+for stm_esp_value in list_stm_esp_value:
+    boardESP.set_pin_mode_digital_output(stm_esp_value[1])
+    boardESP.digital_write(stm_esp_value[1], 1)
+    time.sleep(1)
+    digital_in(boardSTM, stm_esp_value[0])
+    time.sleep(1)
+    stm_esp_value[2] = global_value
+    boardESP.digital_write(stm_esp_value[1], 0)
+    print(stm_esp_value)
+
+"""    
+#while True:    
+    
     boardESP.digital_write(pinESP, 0)
     digital_in(boardSTM, pinSTM)
     print(pin_value)
@@ -74,3 +133,4 @@ while True:
     #boardESP.digital_write(pinESP, 0)
     #boardSTM.digital_write(pinSTM, 0)
     #time.sleep(1)
+"""

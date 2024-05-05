@@ -773,17 +773,17 @@ void set_pin_mode()
   switch (mode)
   {
     case 0: // INPUT
-      the_digital_pins[pin].pin_mode = mode;
+      the_digital_pins[pin].pin_mode = INPUT;
       the_digital_pins[pin].reporting_enabled = command_buffer[2];
       pinMode(pin, INPUT);
       break;
     case 3: // INPUT PULLUP
-      the_digital_pins[pin].pin_mode = mode;
+      the_digital_pins[pin].pin_mode = INPUT_PULLUP;
       the_digital_pins[pin].reporting_enabled = command_buffer[2];
       pinMode(pin, INPUT_PULLUP);
       break;
     case 1: // OUTPUT
-      the_digital_pins[pin].pin_mode = mode;
+      the_digital_pins[pin].pin_mode = OUTPUT;
       pinMode(pin, OUTPUT);
       break;
     // case AT_ANALOG:

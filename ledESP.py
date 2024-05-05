@@ -11,7 +11,7 @@ def makePin(portName, pinNumber):
 
 pinSTM = makePin("C",7)
 #pinESP = 23 # for ESP32-DevKitC-V4
-pinESP = 19 # for ESP32-S3-DevKitC-1
+pinESP = 48 # for ESP32-S3-DevKitC-1
 boardESP.set_pin_mode_digital_output(pinESP)
 #boardSTM.set_pin_mode_digital_output(pinSTM)
 while True:
